@@ -1,0 +1,46 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: dev
+  spec:
+    finalizers:
+    - kubernetes
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: finance
+  spec:
+    finalizers:
+    - kubernetes
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: manufacturing
+  spec:
+    finalizers:
+    - kubernetes
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: marketing
+  spec:
+    finalizers:
+    - kubernetes
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: prod
+  spec:
+    finalizers:
+    - kubernetes
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: research
+  spec:
+    finalizers:
+    - kubernetes
+kind: List
+metadata:

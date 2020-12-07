@@ -1,0 +1,140 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: red
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    imagePullPolicy: Always
+    name: apple
+  - image: busybox
+    imagePullPolicy: Always
+    name: wine
+  - image: busybox
+    imagePullPolicy: Always
+    name: scarlet
+  dnsPolicy: ClusterFirst
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: blue
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    imagePullPolicy: Always
+    name: teal
+  - image: busybox
+    imagePullPolicy: Always
+    name: navy
+  dnsPolicy: ClusterFirst
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: elastic-stack
+spec: {}
+status: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: app
+  name: app
+  namespace: elastic-stack
+spec:
+  containers:
+  - image: kodekloud/event-simulator
+    imagePullPolicy: Always
+    name: app
+    volumeMounts:
+    - mountPath: /log
+      name: log-volume
+  dnsPolicy: ClusterFirst
+  volumes:
+  - hostPath:
+      path: /var/log/webapp
+      type: DirectoryOrCreate
+    name: log-volume
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: elastic-search
+  name: elastic-search
+  namespace: elastic-stack
+spec:
+  containers:
+  - env:
+    - name: discovery.type
+      value: single-node
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+    imagePullPolicy: IfNotPresent
+    name: elastic-search
+    ports:
+    - containerPort: 9200
+      protocol: TCP
+    - containerPort: 9300
+      protocol: TCP
+  dnsPolicy: ClusterFirst
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: kibana
+  name: kibana
+  namespace: elastic-stack
+spec:
+  containers:
+  - env:
+    - name: ELASTICSEARCH_URL
+      value: http://elasticsearch:9200
+    image: kibana:6.4.2
+    imagePullPolicy: IfNotPresent
+    name: kibana
+    ports:
+    - containerPort: 5601
+      protocol: TCP
+  dnsPolicy: ClusterFirst
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: elastic-stack
+spec:
+  ports:
+  - name: port1
+    nodePort: 30200
+    port: 9200
+    protocol: TCP
+    targetPort: 9200
+  - name: port2
+    nodePort: 30300
+    port: 9300
+    protocol: TCP
+    targetPort: 9300
+  selector:
+    name: elastic-search
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: elastic-stack
+spec:
+  ports:
+  - nodePort: 30601
+    port: 5601
+    protocol: TCP
+    targetPort: 5601
+  selector:
+    name: kibana
+  type: NodePort

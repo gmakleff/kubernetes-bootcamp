@@ -1,0 +1,143 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    labels:
+      env: dev
+    name: app-1
+    namespace: default
+  spec:
+    replicas: 3
+    selector:
+      matchLabels:
+        env: dev
+        tier: frontend
+    template:
+      metadata:
+        labels:
+          bu: finance
+          env: dev
+          tier: frontend
+        name: app
+      spec:
+        containers:
+        - command:
+          - sleep
+          - "4800"
+          image: busybox
+          imagePullPolicy: Always
+          name: busybox
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    generation: 1
+    labels:
+      env: prod
+    name: app-2
+    namespace: default
+  spec:
+    replicas: 1
+    selector:
+      matchExpressions:
+      - key: bu
+        operator: DoesNotExist
+      matchLabels:
+        env: prod
+        tier: frontend
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          env: prod
+          tier: frontend
+        name: app
+      spec:
+        containers:
+        - command:
+          - sleep
+          - "4800"
+          image: busybox
+          imagePullPolicy: Always
+          name: busybox
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    generation: 1
+    labels:
+      env: dev
+    name: db-1
+    namespace: default
+  spec:
+    replicas: 4
+    selector:
+      matchLabels:
+        env: dev
+        tier: db
+    template:
+      metadata:
+        labels:
+          env: dev
+          tier: db
+        name: db
+      spec:
+        containers:
+        - command:
+          - sleep
+          - "4800"
+          image: busybox
+          imagePullPolicy: Always
+          name: busybox
+        restartPolicy: Always
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    generation: 1
+    labels:
+      env: prod
+    name: db-2
+    namespace: default
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        env: prod
+        tier: db
+    template:
+      metadata:
+        labels:
+          bu: finance
+          env: prod
+          tier: db
+        name: db
+      spec:
+        containers:
+        - command:
+          - sleep
+          - "4800"
+          image: busybox
+          imagePullPolicy: Always
+          name: busybox
+        restartPolicy: Always
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels: 
+      bu: finance
+      env: prod
+    name: app-1
+    namespace: default
+  spec:
+    ports:
+    - port: 3306
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      name: app-2
+    type: ClusterIP
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
