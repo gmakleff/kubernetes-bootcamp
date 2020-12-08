@@ -18,6 +18,9 @@ spec:
       labels:
         name: simple-webapp
     spec:
+      tolerations: 
+      - effect: NoSchedule
+        operator: Exists
       containers:
       - image: kodekloud/simple-webapp:red
         imagePullPolicy: IfNotPresent

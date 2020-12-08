@@ -7,6 +7,5 @@ spec:
   ports:
     - targetPort:
       port:
-      nodePort:
   selector:
     name:
